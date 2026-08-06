@@ -1,9 +1,13 @@
-*.png
-*.jpg
-*.jpeg
-*.gif
+# Allow image files for the game
+!Screenshot*.png
+
+# Ignore other files
 .DS_Store
 node_modules/
 .env
 *.log
 .vscode/
+app.js
+codes.js
+ind.html
+stylee.css
