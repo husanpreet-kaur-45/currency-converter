@@ -1,0 +1,9 @@
+*.png
+*.jpg
+*.jpeg
+*.gif
+.DS_Store
+node_modules/
+.env
+*.log
+.vscode/
