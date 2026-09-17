@@ -1,104 +1,75 @@
-const STORAGE_KEY = "todo-list-tasks";
+const API_URL = "https://api.frankfurter.app/latest";
 
-const form = document.querySelector("#todoForm");
-const input = document.querySelector("#todoInput");
-const list = document.querySelector("#todoList");
-const emptyState = document.querySelector("#emptyState");
-const taskCount = document.querySelector("#taskCount");
-const clearCompleted = document.querySelector("#clearCompleted");
-const filterButtons = document.querySelectorAll(".filter");
+const fromSelect = document.querySelector("#from");
+const toSelect = document.querySelector("#to");
+const amountInput = document.querySelector("#amount");
+const message = document.querySelector("#msg");
+const button = document.querySelector("form button");
 
-let tasks = loadTasks();
-let currentFilter = "all";
+for (const currencyCode in countryList) {
+  const fromOption = document.createElement("option");
+  fromOption.value = currencyCode;
+  fromOption.textContent = currencyCode;
+  fromSelect.appendChild(fromOption);
 
-function loadTasks() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return Array.isArray(saved) ? saved : [];
-  } catch {
-    return [];
-  }
+  const toOption = document.createElement("option");
+  toOption.value = currencyCode;
+  toOption.textContent = currencyCode;
+  toSelect.appendChild(toOption);
 }
 
-function saveTasks() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+fromSelect.value = "USD";
+toSelect.value = "INR";
+updateFlag(fromSelect);
+updateFlag(toSelect);
+
+fromSelect.addEventListener("change", () => updateFlag(fromSelect));
+toSelect.addEventListener("change", () => updateFlag(toSelect));
+
+function updateFlag(select) {
+  const countryCode = countryList[select.value];
+  const flag = select.parentElement.querySelector("img");
+  flag.src = `https://flagsapi.com/${countryCode}/flat/64.png`;
+  flag.alt = `${select.value} flag`;
 }
 
-function render() {
-  const visibleTasks = tasks.filter((task) => {
-    if (currentFilter === "active") return !task.completed;
-    if (currentFilter === "completed") return task.completed;
-    return true;
-  });
-
-  list.replaceChildren();
-  visibleTasks.forEach((task) => list.appendChild(createTaskElement(task)));
-  emptyState.hidden = visibleTasks.length !== 0;
-
-  const remaining = tasks.filter((task) => !task.completed).length;
-  taskCount.textContent = `${remaining} ${remaining === 1 ? "task" : "tasks"}`;
-}
-
-function createTaskElement(task) {
-  const item = document.createElement("li");
-  item.className = `todo-item${task.completed ? " completed" : ""}`;
-  item.dataset.id = task.id;
-
-  const label = document.createElement("label");
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.checked = task.completed;
-  checkbox.setAttribute("aria-label", `Mark ${task.text} as completed`);
-  checkbox.addEventListener("change", () => {
-    task.completed = checkbox.checked;
-    saveTasks();
-    render();
-  });
-
-  const text = document.createElement("span");
-  text.className = "todo-text";
-  text.textContent = task.text;
-  label.append(checkbox, text);
-
-  const deleteButton = document.createElement("button");
-  deleteButton.className = "delete-button";
-  deleteButton.type = "button";
-  deleteButton.innerHTML = "&times;";
-  deleteButton.setAttribute("aria-label", `Delete ${task.text}`);
-  deleteButton.addEventListener("click", () => {
-    tasks = tasks.filter((savedTask) => savedTask.id !== task.id);
-    saveTasks();
-    render();
-  });
-
-  item.append(label, deleteButton);
-  return item;
-}
-
-form.addEventListener("submit", (event) => {
+button.addEventListener("click", async (event) => {
   event.preventDefault();
-  const text = input.value.trim();
-  if (!text) return;
 
-  tasks.unshift({ id: crypto.randomUUID(), text, completed: false });
-  saveTasks();
-  render();
-  input.value = "";
-  input.focus();
+  const amount = Number(amountInput.value);
+  const fromCurrency = fromSelect.value;
+  const toCurrency = toSelect.value;
+
+  if (!Number.isFinite(amount) || amount < 0) {
+    message.textContent = "Please enter a valid amount.";
+    return;
+  }
+
+  if (fromCurrency === toCurrency) {
+    message.textContent = `${amount} ${fromCurrency} = ${amount.toFixed(2)} ${toCurrency}`;
+    return;
+  }
+
+  message.textContent = "Loading exchange rate...";
+  button.disabled = true;
+
+  try {
+    const response = await fetch(
+      `${API_URL}?from=${fromCurrency}&to=${toCurrency}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Exchange rate request failed");
+    }
+
+    const data = await response.json();
+    const rate = data.rates[toCurrency];
+    const convertedAmount = (amount * rate).toFixed(2);
+
+    message.textContent = `${amount} ${fromCurrency} = ${convertedAmount} ${toCurrency}`;
+  } catch (error) {
+    message.textContent = "Exchange rate load nahi ho paaya. Please try again.";
+  } finally {
+    button.disabled = false;
+  }
 });
-
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    currentFilter = button.dataset.filter;
-    filterButtons.forEach((filter) => filter.classList.toggle("active", filter === button));
-    render();
-  });
-});
-
-clearCompleted.addEventListener("click", () => {
-  tasks = tasks.filter((task) => !task.completed);
-  saveTasks();
-  render();
-});
-
-render();

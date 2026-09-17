@@ -1,11 +1,8 @@
-# To-Do List
+# Currency Converter
 
-A responsive to-do list application with:
+A simple currency converter built with HTML, CSS, and JavaScript.
 
-- Add, complete, and delete tasks
-- All, Active, and Completed filters
-- Clear completed tasks
-- Automatic persistence with browser `localStorage`
+Choose the source and target currencies, enter an amount, and click **Get Exchange Rate**. Exchange rates are loaded from the Frankfurter API.
 
 ## Live Demo
 
