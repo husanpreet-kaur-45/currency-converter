@@ -7,7 +7,5 @@ node_modules/
 .env
 *.log
 .vscode/
-app.js
-codes.js
 ind.html
 stylee.css
