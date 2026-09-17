@@ -1,4 +1,4 @@
-const API_URL = "https://api.frankfurter.app/latest";
+const API_URL = "https://open.er-api.com/v6/latest";
 
 const fromSelect = document.querySelector("#from");
 const toSelect = document.querySelector("#to");
@@ -54,20 +54,18 @@ button.addEventListener("click", async (event) => {
   button.disabled = true;
 
   try {
-    const response = await fetch(
-      `${API_URL}?from=${fromCurrency}&to=${toCurrency}`
-    );
-
-    if (!response.ok) {
-      throw new Error("Exchange rate request failed");
-    }
+    const response = await fetch(`${API_URL}/${fromCurrency}`);
+    if (!response.ok) throw new Error("Exchange rate request failed");
 
     const data = await response.json();
-    const rate = data.rates[toCurrency];
-    const convertedAmount = (amount * rate).toFixed(2);
+    if (data.result !== "success" || typeof data.rates?.[toCurrency] !== "number") {
+      throw new Error("Rate was not returned");
+    }
 
+    const convertedAmount = (amount * data.rates[toCurrency]).toFixed(2);
     message.textContent = `${amount} ${fromCurrency} = ${convertedAmount} ${toCurrency}`;
   } catch (error) {
+    console.error("Currency conversion error:", error);
     message.textContent = "Exchange rate load nahi ho paaya. Please try again.";
   } finally {
     button.disabled = false;
