@@ -1,42 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currency Converter</title>
-    <link href="style.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A simple to-do list with local storage.">
+  <title>To-Do List</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h2>Currency Converter</h2>
-    <form>
-      <div class="amount">
-        <p>Enter Amount</p>
-        <input id="amount" value="1" type="text" />
+  <main class="app" aria-labelledby="title">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Stay organized</p>
+        <h1 id="title">My To-Do List</h1>
       </div>
-      <div class="dropdown">
-        <div class="from">
-          <p>From</p>
-          <div class="select-container">
-            <img id="fromFlag" src="https://flagsapi.com/US/flat/64.png">
-            <select id="from" name="from"></select>
-          </div>
-        </div>
-        <i class="fa-solid fa-right-left"></i>
-        <div class="to">
-          <p>To</p>
-          <div class="select-container">
-            <img id="toFlag" src="https://flagsapi.com/IN/flat/64.png">
-            <select id="to" name="to"></select>
-          </div>
-        </div>
-      </div>
-      <div class="msg" id="msg">1 USD = 80 INR</div>
-        <button type="button">Get Exchange Rate</button>
+      <span id="taskCount" class="task-count">0 tasks</span>
+    </header>
+
+    <form id="todoForm" class="todo-form">
+      <label class="sr-only" for="todoInput">Add a task</label>
+      <input id="todoInput" type="text" maxlength="120" placeholder="What needs to be done?" autocomplete="off" required>
+      <button type="submit">Add task</button>
     </form>
-  </div>
-  <script src="codes.js"></script>
+
+    <div class="toolbar" aria-label="Task filters">
+      <div class="filters" role="group" aria-label="Filter tasks">
+        <button class="filter active" type="button" data-filter="all">All</button>
+        <button class="filter" type="button" data-filter="active">Active</button>
+        <button class="filter" type="button" data-filter="completed">Completed</button>
+      </div>
+      <button id="clearCompleted" class="text-button" type="button">Clear completed</button>
+    </div>
+
+    <ul id="todoList" class="todo-list" aria-live="polite"></ul>
+    <p id="emptyState" class="empty-state">No tasks yet. Add one above!</p>
+  </main>
   <script src="app.js"></script>
 </body>
 </html>
